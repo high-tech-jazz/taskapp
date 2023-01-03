@@ -21,16 +21,25 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // 以降内容をアップデートすると自動的に更新される
     var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
     var catArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: true)
+    var dictCat = [0 : "<選択してください>"]
     
     override func viewDidLoad() {
+        print("viewDidLoad")
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         tableView.fillerRowHeight = UITableView.automaticDimension
         tableView.delegate = self
         tableView.dataSource = self
         
-        filterCategory.delegate = self
-        filterCategory.dataSource = self
+        if catArray.count > 0 {
+            filterCategory.delegate = self
+            filterCategory.dataSource = self
+            
+            catArray.forEach { tempCat in
+                dictCat.updateValue(tempCat.name, forKey: tempCat.id)
+            }
+        }
+        print(taskArray)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -56,7 +65,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewWillAppear(animated)
         tableView.reloadData()
         viewDidLoad()
-        print(taskArray)
     }
     
     //データの数(＝セルの数)を返すメソッド
@@ -124,18 +132,22 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return catArray.count
+        return dictCat.count
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        let predicate = NSPredicate(format: "category = %@", NSNumber(value: catArray[row].id))
-        print(predicate)
-        taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true).filter(predicate)
+        if row == 0 {
+            taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
+        } else {
+            let predicate = NSPredicate(format: "category = %@", NSNumber(value: row))
+            taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true).filter(predicate)
+        }
+        
         tableView.reloadData()
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return catArray[row].name
+        return dictCat[row]
     }
 }
 
