@@ -56,6 +56,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         super.viewWillAppear(animated)
         tableView.reloadData()
         viewDidLoad()
+        print(taskArray)
     }
     
     //データの数(＝セルの数)を返すメソッド

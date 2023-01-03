@@ -34,7 +34,9 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         
         categoryPicker.delegate = self
         categoryPicker.dataSource = self
-        categoryPicker.selectRow(task.category, inComponent: 0, animated: false)
+        if task.category > 0 {
+            categoryPicker.selectRow(task.category - 1, inComponent: 0, animated: false)
+        }
     }
     
     @IBAction func unwind(_ segue: UIStoryboardSegue){

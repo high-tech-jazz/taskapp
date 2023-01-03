@@ -9,7 +9,7 @@ import RealmSwift
 
 class Task: Object {
     // 管理用ID。プライマリーキー。
-    @objc dynamic var id = 0
+    @objc dynamic var id = 1
     
     // タイトル
     @objc dynamic var title = ""
