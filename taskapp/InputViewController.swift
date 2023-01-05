@@ -17,8 +17,7 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     let realm = try! Realm()
     var task: Task!
-    var cat: Category!
-    var selected = 0
+    var selectedCat : Category!
     
     var catArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: true)
     
@@ -34,23 +33,28 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         
         categoryPicker.delegate = self
         categoryPicker.dataSource = self
-        if task.category > 0 {
-            categoryPicker.selectRow(task.category - 1, inComponent: 0, animated: false)
+        if task.category != nil {
+            let row_num : Int!
+            row_num = task.category?.id
+            categoryPicker.selectRow(row_num - 1, inComponent: 0, animated: false)
         }
     }
     
     @IBAction func unwind(_ segue: UIStoryboardSegue){
-        viewDidLoad()
+        categoryPicker.delegate = self
+        categoryPicker.dataSource = self
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         if self.titleTextField.text != "" {
-            if task.category != 0 && selected == 0 {
-                selected = task.category
+            if task.category != nil && selectedCat == nil {
+                selectedCat = task.category
+            } else if selectedCat == nil {
+                selectedCat = catArray[0]
             }
             try! realm.write {
                 self.task.title = self.titleTextField.text!
-                self.task.category = selected
+                self.task.category = selectedCat
                 self.task.contents = self.contentsTextView.text
                 self.task.date = self.datePicker.date
                 self.realm.add(self.task, update: .modified)
@@ -114,7 +118,9 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        selected = catArray[row].id
+        if catArray.count > 0 {
+            selectedCat = catArray[row]
+        }
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
